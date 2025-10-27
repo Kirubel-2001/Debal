@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -12,7 +12,14 @@ import {
   AlertCircle,
 } from "lucide-react";
 import GoogleAuth from "../GoogleAuth";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from "../../../redux/User/userSlice";
+import axios from "axios";
 
 export default function SignupForm() {
   const navigate = useNavigate();
@@ -21,13 +28,16 @@ export default function SignupForm() {
     email: "",
     phone: "",
     password: "",
-    confirmPassword: "",
   });
-
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
+  const dispatch = useDispatch();
+  const { loading, error } = useSelector((state) => state.user);
+
+  useEffect(() => {
+  dispatch(signInFailure(null));
+}, [dispatch]);
 
   // Password strength calculator
   const calculatePasswordStrength = (password) => {
@@ -95,24 +105,6 @@ export default function SignupForm() {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Form submitted:", formData);
-      setIsSubmitting(false);
-      // Redirect to home or dashboard
-    }, 2000);
-  };
-
   const getPasswordStrengthColor = () => {
     switch (passwordStrength) {
       case 0:
@@ -144,6 +136,25 @@ export default function SignupForm() {
         return "";
     }
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+    try {
+      dispatch(signInStart());
+
+      const res = await axios.post("/api/auth/signup", formData);
+
+      dispatch(signInSuccess(res.data)); 
+      navigate("/"); // 🔹 redirect
+    } catch (error) {
+      dispatch(signInFailure(error.response?.data?.message || "Signup failed")); 
+    }
+  };
+
   return (
     <div>
       {/* Signup Form */}
@@ -153,6 +164,9 @@ export default function SignupForm() {
         transition={{ delay: 0.4 }}
         className="bg-white rounded-2xl shadow-xl p-8"
       >
+         {error && (
+      <p className="text-red-600 text-sm mb-2">{error}</p> // 👈 show backend message here
+    )}
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Name Field */}
           <div>
@@ -346,16 +360,16 @@ export default function SignupForm() {
           {/* Create Account Button */}
           <motion.button
             type="submit"
-            disabled={isSubmitting}
-            whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
-            whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
+            disabled={loading}
+            whileHover={{ scale: loading ? 1 : 1.02 }}
+            whileTap={{ scale: loading ? 1 : 0.98 }}
             className={`w-full py-3 rounded-lg font-semibold text-white transition flex items-center justify-center space-x-2 ${
-              isSubmitting
+              loading
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-linear-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
             }`}
           >
-            {isSubmitting ? (
+            {loading ? (
               <>
                 <motion.div
                   animate={{ rotate: 360 }}

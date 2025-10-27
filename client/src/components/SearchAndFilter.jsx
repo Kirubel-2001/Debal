@@ -13,14 +13,14 @@ export default function SearchAndFilter() {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.8 }}
-        className="bg-white rounded-2xl shadow-2xl p-6 md:p-8 max-w-4xl mx-auto"
+        className="bg-white rounded-2xl shadow-2xl p-6 md:p-8 max-w-5xl mx-auto"
       >
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-          <div className="relative">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-4">
+          <div className="md:col-span-3 relative">
             <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
             <input
               type="text"
-              placeholder="Search keywords..."
+              placeholder="Search rooms..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
@@ -33,7 +33,7 @@ export default function SearchAndFilter() {
               onChange={(e) => setLocation(e.target.value)}
               className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
             >
-              <option value="">Select Location</option>
+              <option value="">Location</option>
               <option value="bole">Bole</option>
               <option value="piassa">Piassa</option>
               <option value="arat-kilo">Arat Kilo</option>
@@ -49,7 +49,7 @@ export default function SearchAndFilter() {
               onChange={(e) => setPriceRange(e.target.value)}
               className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
             >
-              <option value="">Price Range</option>
+              <option value="">Price</option>
               <option value="0-5000">Below 5,000 ETB</option>
               <option value="5000-10000">5,000 - 10,000 ETB</option>
               <option value="10000-15000">10,000 - 15,000 ETB</option>

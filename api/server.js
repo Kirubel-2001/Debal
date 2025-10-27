@@ -3,6 +3,7 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import authRouter from "./routes/auth.route.js";
 
 dotenv.config();
 const app = express();
@@ -15,7 +16,20 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO)
-  .then(() => console.log('MongoDB connected'))
+mongoose
+  .connect(process.env.MONGO)
+  .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err));
 
+// Error handling middleware
+app.use((error, req, res, next) => {
+  const statusCode = error.statusCode || 500;
+  const message = error.message || "Internal Server Error";
+  return res.status(statusCode).json({
+    success: false,
+    statusCode,
+    message,
+  });
+});
+
+app.use("/api/auth", authRouter);
