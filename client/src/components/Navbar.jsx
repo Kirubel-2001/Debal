@@ -2,21 +2,24 @@ import React, { useState } from "react";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import { Home, Menu, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
   return (
     <div>
       {/* Navigation */}
       <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className="bg-white shadow-md sticky top-0 z-50"
+        className="cursor-pointer bg-white shadow-md sticky top-0 z-50"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <motion.div
               whileHover={{ scale: 1.05 }}
+              onClick={() => navigate("/")}
               className="flex items-center space-x-2"
             >
               <Home className="w-8 h-8 text-indigo-600" />
@@ -55,6 +58,7 @@ export default function Navbar() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => navigate("/signup")}
                 className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
               >
                 Post a Room
