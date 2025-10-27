@@ -18,7 +18,7 @@ export default function FeaturedListingCard() {
       amenities: "WiFi, Kitchen, Parking",
     },
     {
-      id: 1,
+      id: 2,
       title: "Cozy Studio in Bole",
       location: "Bole, Addis Ababa",
       price: 8000,
@@ -29,7 +29,7 @@ export default function FeaturedListingCard() {
       amenities: "WiFi, Kitchen, Parking",
     },
     {
-      id: 1,
+      id: 3,
       title: "Cozy Studio in Bole",
       location: "Bole, Addis Ababa",
       price: 8000,

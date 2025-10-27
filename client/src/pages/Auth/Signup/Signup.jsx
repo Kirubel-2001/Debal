@@ -1,14 +1,13 @@
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import Navbar from "../../../components/Navbar";
-import SignupForm from "./SginupForm";
+import SignupForm from "./SignupForm";
 
 function Signup() {
   return (
     <div className="min-h-screen bg-linear-to-br from-indigo-50 via-white to-purple-50 flex flex-col">
       {/* Navbar */}
       <Navbar />
-
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center px-4 py-12">
         <motion.div

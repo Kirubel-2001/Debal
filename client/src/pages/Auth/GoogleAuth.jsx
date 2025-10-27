@@ -2,9 +2,9 @@
 import { motion } from "framer-motion";
 
 
-export default function GoogleSignup() {
+export default function GoogleAuth() {
   return (
-    <div>{/* Sign up with Google*/}
+    <div>{/* Continue with Google*/}
         <div className="py-5">
           <motion.button
             // Add your onClick handler here, e.g., onClick={() => signIn('google')}
@@ -35,7 +35,7 @@ export default function GoogleSignup() {
                 d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571l6.19,5.238C39.902,36.639,44,30.823,44,24C44,22.659,43.862,21.35,43.611,20.083z"
               />
             </svg>
-            Sign up with Google
+            Continue with Google
           </motion.button>
         </div></div>
   )

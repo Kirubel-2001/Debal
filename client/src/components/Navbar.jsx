@@ -8,12 +8,12 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   return (
-    <div>
+    <div className="sticky top-0 z-100">
       {/* Navigation */}
       <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className="cursor-pointer bg-white shadow-md sticky top-0 z-50"
+        className="cursor-pointer bg-white shadow-md"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -31,7 +31,7 @@ export default function Navbar() {
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center space-x-8">
               <a
-                href="#home"
+                onClick={() => navigate("/")}
                 className="text-gray-700 hover:text-indigo-600 transition"
               >
                 Home
@@ -51,6 +51,7 @@ export default function Navbar() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => navigate("/signin")}
                 className="px-4 py-2 text-indigo-600 border border-indigo-600 rounded-lg hover:bg-indigo-50 transition"
               >
                 Sign In
@@ -86,7 +87,7 @@ export default function Navbar() {
               className="md:hidden pb-4"
             >
               <div className="flex flex-col space-y-4">
-                <a href="#home" className="text-gray-700 hover:text-indigo-600">
+                <a onClick={()=> navigate("/")} className="text-gray-700 hover:text-indigo-600">
                   Home
                 </a>
                 <a
@@ -101,10 +102,10 @@ export default function Navbar() {
                 >
                   How It Works
                 </a>
-                <button className="px-4 py-2 text-indigo-600 border border-indigo-600 rounded-lg">
+                <button onClick={() => navigate("/signin")} className=" px-4 py-2 text-indigo-600 border border-indigo-600 rounded-lg">
                   Sign In
                 </button>
-                <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg">
+                <button onClick={() => navigate("/signup")} className=" px-4 py-2 bg-indigo-600 text-white rounded-lg">
                   Post a Room
                 </button>
               </div>

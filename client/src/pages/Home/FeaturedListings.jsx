@@ -1,7 +1,6 @@
 import React from "react";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
-import { MapPin, ArrowRight } from "lucide-react";
 import FeaturedListingCard from "../../components/FeaturedListingCard";
 export default function FeaturedListing() {
   return (

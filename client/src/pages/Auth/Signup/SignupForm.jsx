@@ -11,9 +11,11 @@ import {
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
-import GoogleSignup from "./GoogleSignup";
+import GoogleAuth from "../GoogleAuth";
+import { useNavigate } from "react-router-dom";
 
-export default function SginupForm() {
+export default function SignupForm() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -151,7 +153,7 @@ export default function SginupForm() {
         transition={{ delay: 0.4 }}
         className="bg-white rounded-2xl shadow-xl p-8"
       >
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* Name Field */}
           <div>
             <label
@@ -375,7 +377,7 @@ export default function SginupForm() {
           </motion.button>
         </form>
         {/* Sign up with Google*/}
-        <GoogleSignup />
+        <GoogleAuth />
         {/* Divider */}
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
@@ -390,9 +392,9 @@ export default function SginupForm() {
 
         {/* Sign In Link */}
         <motion.a
-          href="/signin"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
+          onClick={() => navigate("/signin")}
           className="block w-full py-3 text-center border-2 border-indigo-600 text-indigo-600 rounded-lg font-semibold hover:bg-indigo-50 transition"
         >
           Sign In
