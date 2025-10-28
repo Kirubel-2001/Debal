@@ -1,24 +1,48 @@
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import { Mail, Lock, LogIn } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import GoogleAuth from "../GoogleAuth";
 import Navbar from "../../../components/Navbar";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from "../../../redux/User/userSlice";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Signin = () => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { loading, error } = useSelector((state) => state.user);
+
+  useEffect(() => {
+  dispatch(signInFailure(null));
+}, [dispatch]);
+
+  const handleChange = (e) => {
+    
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    setIsSubmitting(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Form submitted:");
-      setIsSubmitting(false);
-      // Redirect to home or dashboard
-    }, 2000);
+    try {
+      dispatch(signInStart());
+      const res = await axios.post("/api/auth/signin", formData);
+      dispatch(signInSuccess(res.data));
+      navigate("/"); // 🔹 redirect
+    } catch (error) {
+      dispatch(signInFailure(error.response?.data?.message || "Signin failed"));
+    }
   };
 
   return (
@@ -38,9 +62,15 @@ const Signin = () => {
               Sign in to continue to your account.
             </p>
           </div>
-
+          {error && (
+            <p className="text-red-600 text-sm mb-2">{error}</p> // 👈 show backend message here
+          )}
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form
+            onSubmit={handleSubmit}
+            onChange={handleChange}
+            className="space-y-6"
+          >
             <div>
               <label
                 htmlFor="email"
@@ -101,16 +131,16 @@ const Signin = () => {
             {/* Sign In Button (Primary) */}
             <motion.button
               type="submit"
-              disabled={isSubmitting}
-              whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
-              whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
+              disabled={loading}
+              whileHover={{ scale: loading ? 1 : 1.02 }}
+              whileTap={{ scale: loading ? 1 : 0.98 }}
               className={`w-full py-3 rounded-lg font-semibold text-white transition flex items-center justify-center space-x-2 ${
-                isSubmitting
+                loading
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-linear-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
               }`}
             >
-              {isSubmitting ? (
+              {loading ? (
                 <>
                   <motion.div
                     animate={{ rotate: 360 }}

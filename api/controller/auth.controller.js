@@ -55,3 +55,51 @@ export const signup = async (req, res, next) => {
     errorHandler(500, "Server error during signup");
   }
 };
+// signin
+export const signin = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+    //check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    //check if password is correct
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials",
+      });
+    }
+
+    //Generate JWT token
+    const token = jwt.sign(
+      { id: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "15m" }
+    );
+
+    //send response
+    res.status(200).json({
+      success: true,
+      message: "User logged in successfully",
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    next(error);
+    errorHandler(500, "Server error during signin");
+  }
+};
