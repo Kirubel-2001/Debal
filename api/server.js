@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import authRouter from "./routes/auth.route.js";
+import roomRouter from "./routes/room.route.js";
 
 dotenv.config();
 const app = express();
@@ -33,3 +34,4 @@ app.use((error, req, res, next) => {
 });
 
 app.use("/api/auth", authRouter);
+app.use("/api/room", roomRouter);

@@ -1,7 +1,12 @@
 import { AlertCircle, Hotel, Building2, Building, Home } from "lucide-react";
 import SelectionButton from "./SelectionButton";
 
-function RoomDetailsForm({ formData, errors, onInputChange, onFormDataChange }) {
+function RoomDetailsForm({
+  formData,
+  errors,
+  onInputChange,
+  onFormDataChange,
+}) {
   const accommodationTypes = [
     { value: "room", label: "Room", icon: Hotel },
     { value: "property", label: "Whole property", icon: Building2 },
@@ -16,11 +21,20 @@ function RoomDetailsForm({ formData, errors, onInputChange, onFormDataChange }) 
   const genderOptions = [
     { value: "male", label: "Male" },
     { value: "female", label: "Female" },
+    { value: "any", label: "Any" },
   ];
 
   const locations = [
-    "Bole", "Kirkos", "Lemle", "Cazanchis", "Mekanisa", 
-    "Piassa", "Gulele", "Addis Ketema", "Yeka", "Akaki"
+    "Bole",
+    "Kirkos",
+    "Lemle",
+    "Cazanchis",
+    "Mekanisa",
+    "Piassa",
+    "Gulele",
+    "Addis Ketema",
+    "Yeka",
+    "Akaki",
   ];
 
   return (
@@ -62,8 +76,10 @@ function RoomDetailsForm({ formData, errors, onInputChange, onFormDataChange }) 
               }`}
             >
               <option value="">Select Location</option>
-              {locations.map(loc => (
-                <option key={loc} value={loc.toLowerCase()}>{loc}</option>
+              {locations.map((loc) => (
+                <option key={loc} value={loc.toLowerCase()}>
+                  {loc}
+                </option>
               ))}
             </select>
             {errors.location && (
@@ -75,13 +91,17 @@ function RoomDetailsForm({ formData, errors, onInputChange, onFormDataChange }) 
 
       {/* Accommodation Type */}
       <div className="mb-6">
-        <label className="block text-gray-700 font-semibold mb-3">Accommodation type</label>
+        <label className="block text-gray-700 font-semibold mb-3">
+          Accommodation type
+        </label>
         <div className="grid grid-cols-2 gap-4">
           {accommodationTypes.map((type) => (
             <SelectionButton
               key={type.value}
               selected={formData.accommodationType === type.value}
-              onClick={() => onFormDataChange({ ...formData, accommodationType: type.value })}
+              onClick={() =>
+                onFormDataChange({ ...formData, accommodationType: type.value })
+              }
               icon={type.icon}
               label={type.label}
             />
@@ -92,12 +112,14 @@ function RoomDetailsForm({ formData, errors, onInputChange, onFormDataChange }) 
       {/* Gender */}
       <div className="mb-6">
         <label className="block text-gray-700 font-semibold mb-3">Gender</label>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           {genderOptions.map((type) => (
             <SelectionButton
               key={type.value}
               selected={formData.gender === type.value}
-              onClick={() => onFormDataChange({ ...formData, gender: type.value })}
+              onClick={() =>
+                onFormDataChange({ ...formData, gender: type.value })
+              }
               label={type.label}
             />
           ))}
@@ -106,13 +128,17 @@ function RoomDetailsForm({ formData, errors, onInputChange, onFormDataChange }) 
 
       {/* Property Type */}
       <div className="mb-6">
-        <label className="block text-gray-700 font-semibold mb-3">Property type</label>
-        <div className="grid grid-cols-2 gap-3">
+        <label className="block text-gray-700 font-semibold mb-3">
+          Property type
+        </label>
+        <div className="grid grid-cols-3 gap-3">
           {propertyTypes.map((type) => (
             <SelectionButton
               key={type.value}
               selected={formData.propertyType === type.value}
-              onClick={() => onFormDataChange({ ...formData, propertyType: type.value })}
+              onClick={() =>
+                onFormDataChange({ ...formData, propertyType: type.value })
+              }
               icon={type.icon}
               label={type.label}
             />
@@ -151,44 +177,41 @@ function RoomDetailsForm({ formData, errors, onInputChange, onFormDataChange }) 
 
       {/* Description */}
       <div className="mb-6">
-        <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Description
+        </label>
         <textarea
           name="description"
           value={formData.description}
           onChange={onInputChange}
-          rows="6"
-          placeholder="Describe your room in detail... (minimum 50 characters)"
+          rows="3"
+          placeholder="Describe your room in detail..."
           className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent ${
             errors.description ? "border-red-500" : "border-gray-300"
           }`}
         />
         <div className="flex justify-between items-center mt-1">
-          {errors.description ? (
+          {errors.description && (
             <p className="text-sm text-red-600 flex items-center">
               <AlertCircle className="w-4 h-4 mr-1" />
               {errors.description}
-            </p>
-          ) : (
-            <p className="text-sm text-gray-500">
-              {formData.description.length} / 50 characters minimum
             </p>
           )}
         </div>
       </div>
 
-      <hr className="my-8" />
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Contact & Photos</h2>
-
       {/* Phone */}
       <div className="mb-6">
-        <label className="block text-sm font-semibold text-gray-700 mb-2">Contact Phone</label>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Contact Phone
+        </label>
         <input
           type="tel"
           name="phone"
           value={formData.phone}
           onChange={onInputChange}
           placeholder="+251................."
-          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent ${
+          className={`w-min px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent ${
             errors.phone ? "border-red-500" : "border-gray-300"
           }`}
         />
@@ -199,6 +222,8 @@ function RoomDetailsForm({ formData, errors, onInputChange, onFormDataChange }) 
           </p>
         )}
       </div>
+      <hr className="my-8" />
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">Upload Photos</h2>
     </>
   );
 }

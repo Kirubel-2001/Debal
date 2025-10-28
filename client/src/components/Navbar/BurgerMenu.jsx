@@ -39,7 +39,7 @@ const BurgerMenu = () => {
         {open && currentUser ? <X size={24} /> : <Menu size={24} />}
       </button>
 
-      {open && (
+      {open && currentUser && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}

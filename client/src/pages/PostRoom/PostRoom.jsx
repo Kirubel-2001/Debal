@@ -6,8 +6,12 @@ import Navbar from "../../components/Navbar/Navbar";
 import RoomDetailsForm from "./RoomDetailsForm";
 import PhotoUpload from "./PhotoUpload";
 import SuccessModal from "./SuccessModal";
+import Footer from "../../components/Footer";
+import axios from "axios";
+import { useSelector } from "react-redux";
 
 function PostRoom() {
+  const { currentUser } = useSelector((state) => state.user);
   const [showSuccess, setShowSuccess] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -18,6 +22,7 @@ function PostRoom() {
     rent: "",
     description: "",
     phone: "",
+    owner: currentUser.user.id,
   });
   const [errors, setErrors] = useState({});
   const [previewImages, setPreviewImages] = useState([]);
@@ -52,7 +57,7 @@ function PostRoom() {
 
   const removeImage = (imageId) => {
     setPreviewImages((prev) => {
-      const image = prev.find(img => img.id === imageId);
+      const image = prev.find((img) => img.id === imageId);
       if (image) URL.revokeObjectURL(image.url);
       return prev.filter((img) => img.id !== imageId);
     });
@@ -62,24 +67,39 @@ function PostRoom() {
     const newErrors = {};
 
     if (!formData.title.trim()) newErrors.title = "Title is required";
-    if (!formData.description.trim()) newErrors.description = "Description is required";
-    if (formData.description.length < 50) newErrors.description = "Description must be at least 50 characters";
+    if (!formData.description.trim())
+      newErrors.description = "Description is required";
     if (!formData.rent) newErrors.rent = "Rent is required";
-    if (formData.rent < 1000) newErrors.rent = "Rent must be at least 1000 ETB";
+    if (formData.rent < 200) newErrors.rent = "Rent must be at least 200 ETB";
     if (!formData.location) newErrors.location = "Location is required";
     if (formData.phone && !/^(?:\+251|0)?[79]\d{8}$/.test(formData.phone)) {
       newErrors.phone = "Please enter a valid Ethiopian phone number";
     }
-    if (previewImages.length === 0) newErrors.photos = "At least one photo is required";
+    if (!formData.phone) newErrors.phone = "Phone number is required";
+    if (previewImages.length === 0)
+      newErrors.photos = "At least one photo is required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
-    if (validateForm()) {
-      console.log("Form Submitted:", formData);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+    try {
+      const res = await axios.post("/api/room/create", formData);
+      console.log("Response:", res.data);
       setShowSuccess(true);
+    } catch (error) {
+      console.error("Post request failed:", error);
+      if (error.response) {
+        setErrors(
+          error.response.data.message || "Post request failed. Please try again."
+        );
+      }
     }
   };
 
@@ -94,7 +114,7 @@ function PostRoom() {
       description: "",
       phone: "",
     });
-    previewImages.forEach(img => URL.revokeObjectURL(img.url));
+    previewImages.forEach((img) => URL.revokeObjectURL(img.url));
     setPreviewImages([]);
     setErrors({});
     setShowSuccess(false);
@@ -102,8 +122,9 @@ function PostRoom() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-indigo-50 via-white to-purple-50">
+      {/* Navigation */}
       <Navbar />
-      
+
       <motion.h1
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -122,12 +143,14 @@ function PostRoom() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-2xl shadow-xl p-6 sm:p-8"
         >
+          {/* Room Details Form */}
           <RoomDetailsForm
             formData={formData}
             errors={errors}
             onInputChange={handleInputChange}
             onFormDataChange={handleFormDataChange}
           />
+          {/* Photo Upload */}
 
           <PhotoUpload
             previewImages={previewImages}
@@ -149,12 +172,13 @@ function PostRoom() {
           </div>
         </motion.div>
       </div>
-
+      {/* Success Modal */}
       <SuccessModal
         isOpen={showSuccess}
         onClose={() => setShowSuccess(false)}
         onPostAnother={resetForm}
       />
+      <Footer />
     </div>
   );
 }

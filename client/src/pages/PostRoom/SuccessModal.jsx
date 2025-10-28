@@ -10,7 +10,7 @@ function SuccessModal({ isOpen,  onPostAnother }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
         >
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
