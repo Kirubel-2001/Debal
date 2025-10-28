@@ -2,8 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home/Home";
 import Signup from "./pages/Auth/Signup/Signup";
 import Signin from "./pages/Auth/Signin/Signin";
-import FeaturedListing from "./pages/Home/FeaturedListings";
-import PostRoom from "./pages/Listings/PostRoom";
+import PostRoom from "./pages/PostRoom/PostRoom";
 
 function App() {
   return (
