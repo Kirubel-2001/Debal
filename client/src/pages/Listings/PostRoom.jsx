@@ -148,8 +148,18 @@ function PostRoom() {
     <div className="min-h-screen bg-linear-to-br from-indigo-50 via-white to-purple-50">
       {/* Navigation */}
       <Navbar/>
-
-      {/* Progress Steps are removed. */}
+<motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="pt-5 text-center text-3xl md:text-4xl font-bold text-indigo-600 mb-2"
+            >
+              Got a spare room?
+              <span className="text-xl block bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                Post it on Debal for free!
+              </span>
+            </motion.h1>
+     
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 py-8 sm:py-12">
@@ -162,9 +172,7 @@ function PostRoom() {
           {/* All form content is now in one block, separated by headings */}
 
           {/* --- Section 1: Basic Info --- */}
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">
-            Post a New Room
-          </h2>
+          
           <div className="space-y-6">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">

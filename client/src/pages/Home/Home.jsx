@@ -8,6 +8,7 @@ import {
 } from "./HomeExportBarrel.jsx";
 import Navbar from "../../components/Navbar/Navbar.jsx";
 import Footer from "../../components/Footer.jsx";
+import SearchAndFilter from "../../components/SearchAndFilter";
 
 function Home() {
   return (
@@ -17,6 +18,9 @@ function Home() {
 
       {/* Hero Section */}
       <HeroSection />
+
+      {/* Search and Filter */}
+      <SearchAndFilter />
 
       {/* Featured Listings */}
       <FeaturedListings />

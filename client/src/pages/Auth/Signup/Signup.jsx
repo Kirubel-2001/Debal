@@ -2,10 +2,11 @@
 import { motion } from "framer-motion";
 import Navbar from "../../../components/Navbar/Navbar";
 import SignupForm from "./SignupForm";
+import Footer from "../../../components/Footer";
 
 function Signup() {
   return (
-    <div className="min-h-screen bg-linear-to-br from-indigo-50 via-white to-purple-50 flex flex-col">
+    <div className="min-h-screen bg-linear-to-br from-blue-100 to-purple-100 flex flex-col">
       {/* Navbar */}
       <Navbar />
       {/* Main Content */}
@@ -57,6 +58,7 @@ function Signup() {
           </motion.p>
         </motion.div>
       </div>
+      <Footer />;
     </div>
   );
 }

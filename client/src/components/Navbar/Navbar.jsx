@@ -19,6 +19,16 @@ export default function Navbar() {
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
 
+  const handleScrollTo = (id) => {
+    if (window.location.pathname !== "/") {
+      // Navigate to home first
+      navigate("/", { state: { scrollTo: id } });
+    } else {
+      // Already on home, just scroll
+      const element = document.getElementById(id);
+      if (element) element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
   const handleLogout = async () => {
     try {
       dispatch(signOutUserStart());
@@ -56,20 +66,19 @@ export default function Navbar() {
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center space-x-8">
               <a
-                href="#home"
-                onClick={() => navigate("/")}
+                onClick={()=>handleScrollTo("home")}
                 className="text-gray-700 hover:text-indigo-600 transition"
               >
                 Home
               </a>
               <a
-                href="#listings"
+                onClick={() => handleScrollTo("search")}
                 className="text-gray-700 hover:text-indigo-600 transition"
               >
                 Browse Rooms
               </a>
               <a
-                href="#how-it-works"
+                onClick={() => handleScrollTo("how-it-works")}
                 className="text-gray-700 hover:text-indigo-600 transition"
               >
                 How It Works
@@ -80,7 +89,7 @@ export default function Navbar() {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => navigate(currentUser ? "/post" : "/signup")}
-                      className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+                      className="px-4 py-2 bg-linear-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition"
                     >
                       Post a Room
                     </motion.button>
@@ -131,13 +140,13 @@ export default function Navbar() {
                   Home
                 </a>
                 <a
-                  href="#listings"
+                  onClick={() => handleScrollTo("search")}
                   className="text-gray-700 hover:text-indigo-600"
                 >
                   Browse Rooms
                 </a>
                 <a
-                  href="#how-it-works"
+                  onClick={() => handleScrollTo("how-it-works")}
                   className="text-gray-700 hover:text-indigo-600"
                 >
                   How It Works

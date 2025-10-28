@@ -12,6 +12,7 @@ import {
 } from "../../../redux/User/userSlice";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import Footer from "../../../components/Footer";
 
 const Signin = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -47,7 +48,7 @@ const Signin = () => {
   return (
     <div>
       <Navbar />
-      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-indigo-50 via-white to-purple-50 p-4">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-100 to-purple-100 p-4">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -179,14 +180,15 @@ const Signin = () => {
           <p className="mt-8 text-center text-sm text-gray-600">
             Don't have an account?{" "}
             <a
-              href="/signup"
-              className="font-medium text-indigo-600 hover:text-indigo-500"
+              onClick={()=>navigate("/signup")}
+              className="cursor-pointer font-medium text-indigo-600 hover:text-indigo-500"
             >
               Sign Up
             </a>
           </p>
         </motion.div>
       </div>
+      <Footer />;
     </div>
   );
 };

@@ -1,12 +1,12 @@
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
-import SearchAndFilter from "../../components/SearchAndFilter";
+
 
 export default function HeroSection() {
   return (
     <div>
       {/* Hero Section */}
-      <section id="home" className="pt-20 pb-15 px-4 sm:px-6 lg:px-8">
+      <section id="home" className="pt-20  px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -20,14 +20,12 @@ export default function HeroSection() {
                 Room in Addis Ababa
               </span>
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p  id="search" className="text-xl text-gray-600 max-w-2xl mx-auto">
               Connect with verified room owners and find affordable, comfortable
               living spaces across the city
             </p>
           </motion.div>
 
-          {/* Search Box */}
-          <SearchAndFilter/>
         </div>
       </section>
     </div>
