@@ -3,6 +3,7 @@ import Home from "./pages/Home/Home";
 import Signup from "./pages/Auth/Signup/Signup";
 import Signin from "./pages/Auth/Signin/Signin";
 import FeaturedListing from "./pages/Home/FeaturedListings";
+import PostRoom from "./pages/Listings/PostRoom";
 
 function App() {
   return (
@@ -11,7 +12,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
-        <Route path="featuredListings" element={<FeaturedListing />} />
+        <Route path="/post" element={<PostRoom />} />
       </Routes>
     </BrowserRouter>
   );

@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Mail, Lock, LogIn } from "lucide-react";
 import { useEffect, useState } from "react";
 import GoogleAuth from "../GoogleAuth";
-import Navbar from "../../../components/Navbar";
+import Navbar from "../../../components/Navbar/Navbar";
 import { useDispatch, useSelector } from "react-redux";
 import {
   signInStart,
@@ -20,11 +20,10 @@ const Signin = () => {
   const { loading, error } = useSelector((state) => state.user);
 
   useEffect(() => {
-  dispatch(signInFailure(null));
-}, [dispatch]);
+    dispatch(signInFailure(null));
+  }, [dispatch]);
 
   const handleChange = (e) => {
-    
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,

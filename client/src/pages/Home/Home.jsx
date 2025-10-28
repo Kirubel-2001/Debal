@@ -6,7 +6,7 @@ import {
   HowItWorks,
   CTASection,
 } from "./HomeExportBarrel.jsx";
-import Navbar from "../../components/Navbar.jsx";
+import Navbar from "../../components/Navbar/Navbar.jsx";
 import Footer from "../../components/Footer.jsx";
 
 function Home() {
@@ -17,7 +17,6 @@ function Home() {
 
       {/* Hero Section */}
       <HeroSection />
-
 
       {/* Featured Listings */}
       <FeaturedListings />

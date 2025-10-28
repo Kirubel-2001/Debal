@@ -149,7 +149,8 @@ export default function SignupForm() {
       const res = await axios.post("/api/auth/signup", formData);
 
       dispatch(signInSuccess(res.data)); 
-      navigate("/"); // 🔹 redirect
+      navigate("/post"); 
+      
     } catch (error) {
       dispatch(signInFailure(error.response?.data?.message || "Signup failed")); 
     }

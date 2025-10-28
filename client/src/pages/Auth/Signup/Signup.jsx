@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
-import Navbar from "../../../components/Navbar";
+import Navbar from "../../../components/Navbar/Navbar";
 import SignupForm from "./SignupForm";
 
 function Signup() {
