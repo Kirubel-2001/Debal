@@ -10,9 +10,9 @@ import {
   signInSuccess,
   signInFailure,
 } from "../../../redux/User/userSlice";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Footer from "../../../components/Footer";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const Signin = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -32,18 +32,18 @@ const Signin = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      dispatch(signInStart());
-      const res = await axios.post("/api/auth/signin", formData);
-      dispatch(signInSuccess(res.data));
-      navigate("/"); // 🔹 redirect
-    } catch (error) {
-      dispatch(signInFailure(error.response?.data?.message || "Signin failed"));
-    }
-  };
+  try {
+    dispatch(signInStart());
+    const res = await axiosInstance.post("/auth/signin", formData);
+    dispatch(signInSuccess(res.data));
+    navigate("/");
+  } catch (error) {
+    dispatch(signInFailure(error.response?.data?.message || "Signin failed"));
+  }
+};
 
   return (
     <div>

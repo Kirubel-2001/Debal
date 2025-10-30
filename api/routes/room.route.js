@@ -7,7 +7,7 @@ import { createRoom } from '../controller/room.controller.js';
 
 const router = express.Router();
 
-router.post("/create", createRoom);
+router.post("/create", verifyToken, createRoom);
 
 
 export default router;

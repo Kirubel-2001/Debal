@@ -19,7 +19,7 @@ import {
   signInSuccess,
   signInFailure,
 } from "../../../redux/User/userSlice";
-import axios from "axios";
+import axiosInstance from "../../../utils/axiosInstance";
 
 export default function SignupForm() {
   const navigate = useNavigate();
@@ -137,24 +137,24 @@ export default function SignupForm() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
-    try {
-      dispatch(signInStart());
+  if (!validateForm()) {
+    return;
+  }
+  try {
+    dispatch(signInStart());
 
-      const res = await axios.post("/api/auth/signup", formData);
+    const res = await axiosInstance.post("/auth/signup", formData);
 
-      dispatch(signInSuccess(res.data)); 
-      navigate("/post"); 
-      
-    } catch (error) {
-      dispatch(signInFailure(error.response?.data?.message || "Signup failed")); 
-    }
-  };
+    dispatch(signInSuccess(res.data)); 
+    navigate("/post"); 
+    
+  } catch (error) {
+    dispatch(signInFailure(error.response?.data?.message || "Signup failed")); 
+  }
+};
 
   return (
     <div>

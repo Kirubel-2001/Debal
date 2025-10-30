@@ -7,8 +7,8 @@ import RoomDetailsForm from "./RoomDetailsForm";
 import PhotoUpload from "./PhotoUpload";
 import SuccessModal from "./SuccessModal";
 import Footer from "../../components/Footer";
-import axios from "axios";
 import { useSelector } from "react-redux";
+import axiosInstance from "../../utils/axiosInstance";
 
 function PostRoom() {
   const { currentUser } = useSelector((state) => state.user);
@@ -89,16 +89,24 @@ function PostRoom() {
     if (!validateForm()) {
       return;
     }
+
     try {
-      const res = await axios.post("/api/room/create", formData);
+      // Use axiosInstance instead of axios
+      const res = await axiosInstance.post("/room/create", formData);
       console.log("Response:", res.data);
       setShowSuccess(true);
     } catch (error) {
       console.error("Post request failed:", error);
       if (error.response) {
-        setErrors(
-          error.response.data.message || "Post request failed. Please try again."
-        );
+        setErrors({
+          submit:
+            error.response.data.message ||
+            "Post request failed. Please try again.",
+        });
+      } else {
+        setErrors({
+          submit: "Network error. Please check your connection.",
+        });
       }
     }
   };
