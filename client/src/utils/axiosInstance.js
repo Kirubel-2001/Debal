@@ -1,6 +1,7 @@
 import axios from 'axios';
 import {store} from '../redux/store';
-import { signInSuccess, signInFailure } from '../redux/User/userSlice';
+import { signInSuccess, signOutUserSuccess } from '../redux/User/userSlice';
+
 
 const axiosInstance = axios.create({
   baseURL: '/api',
@@ -54,7 +55,7 @@ axiosInstance.interceptors.response.use(
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         // Refresh failed, logout user
-        store.dispatch(signInFailure('Session expired. Please login again.'));
+        store.dispatch(signOutUserSuccess());
         window.location.href = '/signin';
         return Promise.reject(refreshError);
       }

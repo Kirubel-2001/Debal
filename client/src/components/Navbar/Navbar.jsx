@@ -11,7 +11,7 @@ import {
   signOutUserSuccess,
   signOutUserFailure,
 } from "../../redux/User/userSlice";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosInstance";
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -32,7 +32,7 @@ export default function Navbar() {
   const handleLogout = async () => {
     try {
       dispatch(signOutUserStart());
-      await axios.post("/api/auth/signout"); // your backend API route
+      await axiosInstance.post("/api/auth/signout"); // your backend API route
       dispatch(signOutUserSuccess());
       navigate("/"); // optional redirect to home page after logout
     } catch (error) {
