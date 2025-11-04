@@ -3,6 +3,7 @@ import Home from "./pages/Home/Home";
 import Signup from "./pages/Auth/Signup/Signup";
 import Signin from "./pages/Auth/Signin/Signin";
 import PostRoom from "./pages/PostRoom/PostRoom";
+import Profile from "./pages/Profile/Profile";
 
 function App() {
   return (
@@ -12,6 +13,8 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
         <Route path="/post" element={<PostRoom />} />
+        <Route path="/profile" element={<Profile />} />
+        
       </Routes>
     </BrowserRouter>
   );
