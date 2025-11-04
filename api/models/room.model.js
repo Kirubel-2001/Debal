@@ -60,6 +60,11 @@ const roomSchema = new mongoose.Schema(
       enum: ["available", "rented"],
       default: "available",
     },
+    images: [
+      {
+        type: String, // Cloudinary URLs
+      },
+    ],
   },
   {
     timestamps: true,

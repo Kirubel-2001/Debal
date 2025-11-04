@@ -20,7 +20,7 @@ const BurgerMenu = () => {
     const handleLogout = async () => {
     try {
       dispatch(signOutUserStart());
-      await axiosInstance.post("/api/auth/signout"); // your backend API route
+      await axiosInstance.post("/auth/signout"); // your backend API route
       dispatch(signOutUserSuccess());
       navigate("/"); // optional redirect to home page after logout
     } catch (error) {

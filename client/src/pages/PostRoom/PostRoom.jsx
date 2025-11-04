@@ -26,6 +26,8 @@ function PostRoom() {
   });
   const [errors, setErrors] = useState({});
   const [previewImages, setPreviewImages] = useState([]);
+  const [imageFiles, setImageFiles] = useState([]); // Store actual File objects
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -40,6 +42,7 @@ function PostRoom() {
   };
 
   const handleImageUpload = (e) => {
+    
     const files = Array.from(e.target.files);
     if (files.length + previewImages.length > 5) {
       setErrors((prev) => ({ ...prev, photos: "Maximum 5 photos allowed" }));
@@ -49,16 +52,24 @@ function PostRoom() {
     const newPreviews = files.map((file) => ({
       id: Math.random().toString(36).substr(2, 9),
       url: URL.createObjectURL(file),
+      file: file, // Store the file object
     }));
 
     setPreviewImages((prev) => [...prev, ...newPreviews]);
+    setImageFiles((prev) => [...prev, ...files]);
     setErrors((prev) => ({ ...prev, photos: "" }));
   };
 
   const removeImage = (imageId) => {
     setPreviewImages((prev) => {
       const image = prev.find((img) => img.id === imageId);
-      if (image) URL.revokeObjectURL(image.url);
+      if (image) {
+        URL.revokeObjectURL(image.url);
+        // Remove the corresponding file from imageFiles
+        setImageFiles((prevFiles) =>
+          prevFiles.filter((file) => file !== image.file)
+        );
+      }
       return prev.filter((img) => img.id !== imageId);
     });
   };
@@ -90,9 +101,35 @@ function PostRoom() {
       return;
     }
 
+    setIsSubmitting(true);
+
     try {
-      // Use axiosInstance instead of axios
-      const res = await axiosInstance.post("/room/create", formData);
+      // Create FormData object
+      const submitData = new FormData();
+
+      // Append all form fields
+      submitData.append("title", formData.title);
+      submitData.append("location", formData.location);
+      submitData.append("accommodationType", formData.accommodationType);
+      submitData.append("propertyType", formData.propertyType);
+      submitData.append("gender", formData.gender);
+      submitData.append("rent", formData.rent);
+      submitData.append("description", formData.description);
+      submitData.append("phone", formData.phone);
+      submitData.append("owner", formData.owner);
+
+      // Append all image files
+      imageFiles.forEach((file) => {
+        submitData.append("images", file);
+      });
+
+      // Send request with FormData
+      const res = await axiosInstance.post("/room/create", submitData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
       console.log("Response:", res.data);
       setShowSuccess(true);
     } catch (error) {
@@ -108,6 +145,8 @@ function PostRoom() {
           submit: "Network error. Please check your connection.",
         });
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -121,9 +160,11 @@ function PostRoom() {
       rent: "",
       description: "",
       phone: "",
+      owner: currentUser.user.id,
     });
     previewImages.forEach((img) => URL.revokeObjectURL(img.url));
     setPreviewImages([]);
+    setImageFiles([]);
     setErrors({});
     setShowSuccess(false);
   };
@@ -167,15 +208,22 @@ function PostRoom() {
             error={errors.photos}
           />
 
+          {errors.submit && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-600">{errors.submit}</p>
+            </div>
+          )}
+
           <div className="mt-10 pt-6 border-t">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleSubmit}
-              className="w-full px-8 py-3 bg-linear-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-semibold hover:from-indigo-700 hover:to-purple-700 transition flex items-center justify-center space-x-2"
+              disabled={isSubmitting}
+              className="w-full px-8 py-3 bg-linear-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-semibold hover:from-indigo-700 hover:to-purple-700 transition flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <CheckCircle className="w-5 h-5" />
-              <span>Submit Listing</span>
+              <span>{isSubmitting ? "Submitting..." : "Submit Listing"}</span>
             </motion.button>
           </div>
         </motion.div>
