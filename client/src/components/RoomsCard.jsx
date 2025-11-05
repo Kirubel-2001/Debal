@@ -1,0 +1,322 @@
+import { useState, useEffect } from "react";
+// eslint-disable-next-line no-unused-vars
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  MapPin,
+  ArrowRight,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import axiosInstance from "../utils/axiosInstance";
+import RoomsDetailsCard from "./RoomsDetailsCard";
+
+export default function RoomsCard() {
+  const [listings, setListings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedRoom, setSelectedRoom] = useState(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+
+  useEffect(() => {
+    fetchRooms(currentPage);
+  }, [currentPage]);
+
+  const fetchRooms = async (page) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await axiosInstance.get("/room/rooms", {
+        params: {
+          limit: 6,
+          page: page,
+          sort: "-createdAt",
+        },
+      });
+
+      if (response.data.success) {
+        setListings(response.data.data);
+        setPagination(response.data.pagination);
+      }
+    } catch (err) {
+      console.error("Error fetching rooms:", err);
+      setError(err.response?.data?.message || "Failed to fetch rooms");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= (pagination?.totalPages || 1)) {
+      setCurrentPage(newPage);
+
+      const section = document.getElementById("rooms");
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
+
+  const handleViewDetails = (room) => {
+    setSelectedRoom(room);
+    setIsDetailsOpen(true);
+  };
+
+  const handleCloseDetails = () => {
+    setIsDetailsOpen(false);
+    setTimeout(() => setSelectedRoom(null), 300);
+  };
+
+  const getPageNumbers = () => {
+    if (!pagination) return [];
+
+    const totalPages = pagination.totalPages;
+    const current = currentPage;
+    const pages = [];
+
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (current <= 4) {
+        for (let i = 1; i <= 5; i++) pages.push(i);
+        pages.push("...");
+        pages.push(totalPages);
+      } else if (current >= totalPages - 3) {
+        pages.push(1);
+        pages.push("...");
+        for (let i = totalPages - 4; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        pages.push("...");
+        for (let i = current - 1; i <= current + 1; i++) pages.push(i);
+        pages.push("...");
+        pages.push(totalPages);
+      }
+    }
+
+    return pages;
+  };
+
+  const getStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+      case "available":
+        return "bg-green-100 text-green-700";
+      case "rented":
+        return "bg-red-100 text-red-700";
+      case "pending":
+        return "bg-yellow-100 text-yellow-700";
+      default:
+        return "bg-gray-100 text-gray-700";
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+    },
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  if (loading) {
+    return (
+      <div className="pb-32 flex items-center justify-center min-h-96">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-indigo-600 mx-auto mb-4" />
+          <p className="text-gray-600">Loading rooms...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="pb-32 flex items-center justify-center min-h-96">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <button
+            onClick={() => fetchRooms(currentPage)}
+            className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (listings.length === 0) {
+    return (
+      <div className="pb-32 flex items-center justify-center min-h-96">
+        <div className="text-center">
+          <p className="text-gray-600 text-lg">
+            No rooms available at the moment.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="pb-32">
+      <motion.div
+        key={currentPage}
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+      >
+        {listings.map((listing) => (
+          <motion.div
+            key={listing._id}
+            variants={itemVariants}
+            whileHover={{ y: -10 }}
+            className="bg-white rounded-xl shadow-lg overflow-hidden"
+          >
+            <div className="relative h-48 bg-linear-to-br from-indigo-400 to-purple-400">
+              {listing.images && listing.images.length > 0 ? (
+                <img
+                  src={listing.images[0]}
+                  alt={listing.title}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center text-white text-lg font-semibold">
+                  {listing.title}
+                </div>
+              )}
+              {listing.status && (
+                <div className="absolute top-3 right-3">
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-semibold capitalize ${getStatusColor(
+                      listing.status
+                    )}`}
+                  >
+                    {listing.status}
+                  </span>
+                </div>
+              )}
+            </div>
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                {listing.title}
+              </h3>
+              <div className="flex items-center text-gray-600 mb-2 capitalize">
+                <MapPin className="w-4 h-4 mr-2 shrink-0" />
+                <span className="text-sm">{listing.location}</span>
+              </div>
+              <div className="text-2xl font-bold text-indigo-600 mb-4">
+                {listing.rent?.toLocaleString()} ETB
+                <span className="text-sm text-gray-500">/month</span>
+              </div>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {listing.accommodationType && (
+                  <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs capitalize">
+                    {listing.accommodationType}
+                  </span>
+                )}
+                {listing.gender && (
+                  <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs capitalize">
+                    {listing.gender}
+                  </span>
+                )}
+                {listing.propertyType && (
+                  <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs capitalize">
+                    {listing.propertyType}
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                {listing.description ||
+                  listing.amenities?.join(", ") ||
+                  "No description available"}
+              </p>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => handleViewDetails(listing)}
+                className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition flex items-center justify-center space-x-2"
+              >
+                <span>View Details</span>
+                <ArrowRight className="w-4 h-4" />
+              </motion.button>
+            </div>
+          </motion.div>
+        ))}
+      </motion.div>
+
+      {pagination && pagination.totalPages > 1 && (
+        <div className="mt-12">
+          <div className="flex items-center justify-center space-x-2">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+
+            {getPageNumbers().map((page, index) =>
+              page === "..." ? (
+                <span
+                  key={`ellipsis-${index}`}
+                  className="px-3 py-2 text-gray-500"
+                >
+                  ...
+                </span>
+              ) : (
+                <button
+                  key={page}
+                  onClick={() => handlePageChange(page)}
+                  className={`px-4 py-2 rounded-lg transition ${
+                    currentPage === page
+                      ? "bg-indigo-600 text-white"
+                      : "border border-gray-300 hover:bg-gray-100"
+                  }`}
+                >
+                  {page}
+                </button>
+              )
+            )}
+
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === pagination.totalPages}
+              className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div className="text-center mt-4 text-gray-600">
+            <p>
+              Page {currentPage} of {pagination.totalPages} (
+              {pagination.totalRooms} total rooms)
+            </p>
+          </div>
+        </div>
+      )}
+
+      <AnimatePresence>
+        {isDetailsOpen && selectedRoom && (
+          <RoomsDetailsCard room={selectedRoom} onClose={handleCloseDetails} />
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}

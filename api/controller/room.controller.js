@@ -2,6 +2,7 @@ import { errorHandler } from "../utils/error.js";
 import Room from "../models/room.model.js";
 import { cloudinary, uploadToCloudinary } from "../utils/cloudinary.js";
 
+// Create room
 export const createRoom = async (req, res, next) => {
   try {
     const {
@@ -61,6 +62,103 @@ export const createRoom = async (req, res, next) => {
     next(error);
   }
 };
+
+// Get all rooms with filters, sorting, and pagination
+export const getAllRooms = async (req, res, next) => {
+  try {
+    const {
+      location,
+      accommodationType,
+      propertyType,
+      gender,
+      phone,
+      minRent,
+      maxRent,
+      status,
+      search,
+      sort = '-createdAt',
+      page = 1,
+      limit = 10
+    } = req.query;
+
+    // Build filter object
+    const filter = {};
+
+    if (location) {
+      filter.location = { $regex: location, $options: 'i' };
+    }
+
+    if (accommodationType) {
+      filter.accommodationType = accommodationType;
+    }
+
+    if (propertyType) {
+      filter.propertyType = propertyType;
+    }
+
+    if (gender) {
+      filter.gender = gender;
+    }
+
+    if (status) {
+      filter.status = status;
+    }
+
+    if (phone) {
+      filter.phone = phone;
+    }
+
+    // Rent range filter
+    if (minRent || maxRent) {
+      filter.rent = {};
+      if (minRent) filter.rent.$gte = Number(minRent);
+      if (maxRent) filter.rent.$lte = Number(maxRent);
+    }
+
+    // Search in title and description
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    // Pagination
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+    const skip = (pageNum - 1) * limitNum;
+
+    // Execute query with filters, sorting, and pagination
+    const rooms = await Room.find(filter)
+      .sort(sort)
+      .skip(skip)
+      .limit(limitNum)
+      .populate('owner', 'username email')
+      .lean();
+
+    // Get total count for pagination
+    const totalRooms = await Room.countDocuments(filter);
+    const totalPages = Math.ceil(totalRooms / limitNum);
+
+    res.status(200).json({
+      success: true,
+      data: rooms,
+      pagination: {
+        currentPage: pageNum,
+        totalPages,
+        totalRooms,
+        limit: limitNum,
+        hasNextPage: pageNum < totalPages,
+        hasPrevPage: pageNum > 1
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+
 // Delete room with images
 // export const deleteRoom = async (req, res, next) => {
 //   try {

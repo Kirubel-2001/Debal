@@ -1,7 +1,6 @@
-import React from "react";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
-import FeaturedListingCard from "../../components/FeaturedListingCard";
+import RoomsCard from "../../components/RoomsCard";
 export default function FeaturedListing() {
   return (
     <div>
@@ -15,14 +14,14 @@ export default function FeaturedListing() {
             className="text-center mb-12"
           >
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Featured Listings
+              Featured Rooms
             </h2>
             <p className="text-xl text-gray-600">
               Discover the best rooms available right now
             </p>
           </motion.div>
 
-          <FeaturedListingCard/>
+          <RoomsCard />
         </div>
       </section>
     </div>
