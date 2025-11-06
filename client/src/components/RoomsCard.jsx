@@ -15,7 +15,12 @@ import axiosInstance from "../utils/axiosInstance";
 import RoomsDetailsCard from "./RoomsDetailsCard";
 import LoadingSpinner from "./LoadingSpinner";
 
-export default function RoomsCard({  onViewDetails, onEdit, onDelete, showActions = false }) {
+export default function RoomsCard({
+  onViewDetails,
+  onEdit,
+  onDelete,
+  showActions = false,
+}) {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -32,14 +37,15 @@ export default function RoomsCard({  onViewDetails, onEdit, onDelete, showAction
     try {
       setLoading(true);
       setError(null);
-
-      const response = await axiosInstance.get("/room/rooms", {
-        params: {
-          limit: 6,
-          page: page,
-          sort: "-createdAt",
-        },
-      });
+      const params = {
+        limit: 6,
+        page: page,
+        sort: "-createdAt",
+      };
+      if (!showActions) {
+        params.status = "available";
+      }
+      const response = await axiosInstance.get("/room/rooms", { params });
 
       if (response.data.success) {
         setListings(response.data.data);
@@ -154,7 +160,7 @@ export default function RoomsCard({  onViewDetails, onEdit, onDelete, showAction
       },
     },
   };
-if (loading) {
+  if (loading) {
     return <LoadingSpinner message="Loading Featured rooms..." />;
   }
   if (error) {
@@ -352,7 +358,6 @@ if (loading) {
           <RoomsDetailsCard room={selectedRoom} onClose={handleCloseDetails} />
         )}
       </AnimatePresence>
-      
     </div>
   );
 }
