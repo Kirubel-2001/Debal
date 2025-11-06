@@ -7,11 +7,15 @@ import {
   Loader2,
   ChevronLeft,
   ChevronRight,
+  Pencil,
+  Trash2,
+  Eye,
 } from "lucide-react";
 import axiosInstance from "../utils/axiosInstance";
 import RoomsDetailsCard from "./RoomsDetailsCard";
+import LoadingSpinner from "./LoadingSpinner";
 
-export default function RoomsCard() {
+export default function RoomsCard({  onViewDetails, onEdit, onDelete, showActions = false }) {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -53,7 +57,7 @@ export default function RoomsCard() {
     if (newPage >= 1 && newPage <= (pagination?.totalPages || 1)) {
       setCurrentPage(newPage);
 
-      const section = document.getElementById("rooms");
+      const section = document.getElementById("listings");
       if (section) {
         section.scrollIntoView({ behavior: "smooth" });
       }
@@ -61,13 +65,31 @@ export default function RoomsCard() {
   };
 
   const handleViewDetails = (room) => {
-    setSelectedRoom(room);
-    setIsDetailsOpen(true);
+    if (onViewDetails) {
+      onViewDetails(room);
+    } else {
+      setSelectedRoom(room);
+      setIsDetailsOpen(true);
+    }
   };
 
   const handleCloseDetails = () => {
     setIsDetailsOpen(false);
     setTimeout(() => setSelectedRoom(null), 300);
+  };
+
+  const handleEdit = (room, e) => {
+    e.stopPropagation();
+    if (onEdit) {
+      onEdit(room);
+    }
+  };
+
+  const handleDelete = (room, e) => {
+    e.stopPropagation();
+    if (onDelete) {
+      onDelete(room);
+    }
   };
 
   const getPageNumbers = () => {
@@ -132,18 +154,9 @@ export default function RoomsCard() {
       },
     },
   };
-
-  if (loading) {
-    return (
-      <div className="pb-32 flex items-center justify-center min-h-96">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-indigo-600 mx-auto mb-4" />
-          <p className="text-gray-600">Loading rooms...</p>
-        </div>
-      </div>
-    );
+if (loading) {
+    return <LoadingSpinner message="Loading Featured rooms..." />;
   }
-
   if (error) {
     return (
       <div className="pb-32 flex items-center justify-center min-h-96">
@@ -211,6 +224,28 @@ export default function RoomsCard() {
                   </span>
                 </div>
               )}
+              {showActions && (
+                <div className="absolute top-3 left-3 flex space-x-2">
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={(e) => handleEdit(listing, e)}
+                    className="p-2 bg-white rounded-full shadow-lg hover:bg-indigo-50 transition"
+                    title="Edit"
+                  >
+                    <Pencil className="w-4 h-4 text-indigo-600" />
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={(e) => handleDelete(listing, e)}
+                    className="p-2 bg-white rounded-full shadow-lg hover:bg-red-50 transition"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-4 h-4 text-red-600" />
+                  </motion.button>
+                </div>
+              )}
             </div>
             <div className="p-6">
               <h3 className="text-lg font-semibold text-gray-800 mb-2">
@@ -252,8 +287,8 @@ export default function RoomsCard() {
                 onClick={() => handleViewDetails(listing)}
                 className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition flex items-center justify-center space-x-2"
               >
+                <Eye className="w-4 h-4" />
                 <span>View Details</span>
-                <ArrowRight className="w-4 h-4" />
               </motion.button>
             </div>
           </motion.div>
@@ -317,6 +352,7 @@ export default function RoomsCard() {
           <RoomsDetailsCard room={selectedRoom} onClose={handleCloseDetails} />
         )}
       </AnimatePresence>
+      
     </div>
   );
 }

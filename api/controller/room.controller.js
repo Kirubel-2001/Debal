@@ -156,37 +156,166 @@ export const getAllRooms = async (req, res, next) => {
     next(error);
   }
 };
+// Update room
+export const updateRoom = async (req, res, next) => {
+  try {
+    const room = await Room.findById(req.params.id);
+    
+    if (!room) {
+      return next(errorHandler(404, "Room not found"));
+    }
 
+    // Check if user owns this room
+    if (room.owner.toString() !== req.user.id) {
+      return next(errorHandler(403, "You can only update your own rooms"));
+    }
 
+    const {
+      title,
+      description,
+      location,
+      accommodationType,
+      propertyType,
+      gender,
+      rent,
+      phone,
+      status
+    } = req.body;
+
+    let imageUrls = room.images; // Keep existing images by default
+
+    // If new images are uploaded
+    if (req.files && req.files.length > 0) {
+      // Delete old images from Cloudinary
+      if (room.images && room.images.length > 0) {
+        for (const imageUrl of room.images) {
+          try {
+            const urlParts = imageUrl.split('/');
+            const publicIdWithExtension = urlParts[urlParts.length - 1];
+            const publicId = `room-listings/${publicIdWithExtension.split('.')[0]}`;
+            await cloudinary.uploader.destroy(publicId);
+          } catch (err) {
+            console.error('Error deleting old image:', err);
+          }
+        }
+      }
+
+      // Upload new images
+      const uploadPromises = req.files.map(file => uploadToCloudinary(file.buffer));
+      const uploadResults = await Promise.all(uploadPromises);
+      imageUrls = uploadResults.map(result => result.secure_url);
+    }
+
+    const updatedRoom = await Room.findByIdAndUpdate(
+      req.params.id,
+      {
+        title,
+        description,
+        location,
+        accommodationType,
+        propertyType,
+        gender,
+        rent,
+        phone,
+        status,
+        images: imageUrls
+      },
+      { new: true, runValidators: true }
+    ).populate('owner', 'username email');
+
+    res.status(200).json({
+      success: true,
+      message: "Room updated successfully",
+      data: updatedRoom
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 // Delete room with images
-// export const deleteRoom = async (req, res, next) => {
-//   try {
-//     const room = await Room.findById(req.params.id);
+export const deleteRoom = async (req, res, next) => {
+  try {
+    const room = await Room.findById(req.params.id);
     
-//     if (!room) {
-//       return next(errorHandler(404, "Room not found"));
-//     }
+    if (!room) {
+      return next(errorHandler(404, "Room not found"));
+    }
 
-//     // Delete images from Cloudinary
-//     if (room.images && room.images.length > 0) {
-//       for (const imageUrl of room.images) {
-//         // Extract public_id from Cloudinary URL
-//         const urlParts = imageUrl.split('/');
-//         const publicIdWithExtension = urlParts[urlParts.length - 1];
-//         const publicId = `room-listings/${publicIdWithExtension.split('.')[0]}`;
-        
-//         await cloudinary.uploader.destroy(publicId).catch(err => console.error(err));
-//       }
-//     }
+    // Check if user owns this room
+    if (room.owner.toString() !== req.user.id) {
+      return next(errorHandler(403, "You can only delete your own rooms"));
+    }
 
-//     await Room.findByIdAndDelete(req.params.id);
+    // Delete images from Cloudinary
+    if (room.images && room.images.length > 0) {
+      for (const imageUrl of room.images) {
+        try {
+          const urlParts = imageUrl.split('/');
+          const publicIdWithExtension = urlParts[urlParts.length - 1];
+          const publicId = `room-listings/${publicIdWithExtension.split('.')[0]}`;
+          await cloudinary.uploader.destroy(publicId);
+        } catch (err) {
+          console.error('Error deleting image:', err);
+        }
+      }
+    }
 
-//     res.status(200).json({
-//       success: true,
-//       message: "Room deleted successfully"
-//     });
-//   } catch (error) {
-//     next(error);
-//   }
-// };
+    await Room.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+      success: true,
+      message: "Room deleted successfully"
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Get rooms by owner (user's own rooms)
+export const getMyRooms = async (req, res, next) => {
+  
+  try {
+    const {
+      status,
+      sort = '-createdAt',
+      page = 1,
+      limit = 10
+    } = req.query;
+
+    const filter = { owner: req.user.id };
+
+    if (status) {
+      filter.status = status;
+    }
+
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+    const skip = (pageNum - 1) * limitNum;
+
+    const rooms = await Room.find(filter)
+      .sort(sort)
+      .skip(skip)
+      .limit(limitNum)
+      .populate('owner', 'username email')
+      .lean();
+
+    const totalRooms = await Room.countDocuments(filter);
+    const totalPages = Math.ceil(totalRooms / limitNum);
+
+    res.status(200).json({
+      success: true,
+      data: rooms,
+      pagination: {
+        currentPage: pageNum,
+        totalPages,
+        totalRooms,
+        limit: limitNum,
+        hasNextPage: pageNum < totalPages,
+        hasPrevPage: pageNum > 1
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};

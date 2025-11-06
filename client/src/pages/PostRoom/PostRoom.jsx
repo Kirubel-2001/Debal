@@ -178,7 +178,7 @@ function PostRoom() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="pt-5 text-center text-3xl md:text-4xl font-bold text-indigo-600 mb-2"
+        className="pt-5 text-center text-3xl md:text-4xl font-bold block bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2"
       >
         Got a spare room?
         <span className="text-xl block bg-linear-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">

@@ -1,4 +1,4 @@
-// eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line
 import { motion } from "framer-motion";
 
 function SelectionButton({ selected, onClick, icon: Icon, label }) {
@@ -8,22 +8,30 @@ function SelectionButton({ selected, onClick, icon: Icon, label }) {
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className={`p-4 rounded-xl border-2 transition-all ${
-        selected ? "border-teal-400 bg-teal-50" : "border-gray-200 hover:border-gray-300"
+      className={`relative p-0.5 rounded-xl transition-all duration-300 ${
+        selected
+          ? "bg-linear-to-r from-indigo-600 to-purple-600"
+          : "bg-gray-100/30 hover:bg-gray-200/50"
       }`}
     >
-      <div className="flex items-center justify-between">
+      <div
+        className={`flex items-center justify-between rounded-[10px] px-4 py-4 transition-all ${
+          selected
+            ? "bg-indigo-50 backdrop-blur-sm text-indigo-700"
+            : "bg-white backdrop-blur-sm text-gray-700"
+        }`}
+      >
         <div className="flex items-center gap-3">
-          {Icon && <Icon className={`h-6 w-6 ${selected ? "text-teal-500" : "text-gray-600"}`} />}
-          <span className={`font-medium ${selected ? "text-teal-700" : "text-gray-700"}`}>
-            {label}
-          </span>
+          {Icon && (
+            <Icon
+              className={`h-6 w-6 ${
+                selected ? "text-indigo-700" : "text-gray-600"
+              }`}
+            />
+          )}
+          <span className="font-medium">{label}</span>
         </div>
-        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-          selected ? "border-teal-500 bg-teal-500" : "border-gray-300"
-        }`}>
-          {selected && <div className="w-2 h-2 bg-white rounded-full"></div>}
-        </div>
+        
       </div>
     </motion.button>
   );
