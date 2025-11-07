@@ -1,12 +1,11 @@
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
-import RoomsCard from "../../components/RoomsCard";
 export default function FeaturedListing() {
   return (
     <div>
       {/* Featured Listings */}
       <section id="listings" className="px-4 pt-10 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+        
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -21,8 +20,7 @@ export default function FeaturedListing() {
             </p>
           </motion.div>
 
-          <RoomsCard />
-        </div>
+          
       </section>
     </div>
   );

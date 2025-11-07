@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MapPin,
-  ArrowRight,
   Loader2,
   ChevronLeft,
   ChevronRight,
@@ -20,6 +19,8 @@ export default function RoomsCard({
   onEdit,
   onDelete,
   showActions = false,
+  searchResults = null,
+  onResetSearch = null,
 }) {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,9 +29,27 @@ export default function RoomsCard({
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isSearchMode, setIsSearchMode] = useState(false); // Track if we're in search mode
+
+  // Update listings when search results change
+  useEffect(() => {
+    if (searchResults) {
+      setIsSearchMode(true);
+      setListings(searchResults.rooms);
+      setPagination(searchResults.pagination);
+      setCurrentPage(searchResults.pagination.currentPage);
+      setLoading(false);
+    } else if (searchResults === null && !isSearchMode) {
+      // Only fetch all rooms on initial load, not when search returns no results
+      fetchRooms(currentPage);
+    }
+  }, [searchResults]);
 
   useEffect(() => {
-    fetchRooms(currentPage);
+    // Only fetch when not in search mode
+    if (!isSearchMode) {
+      fetchRooms(currentPage);
+    }
   }, [currentPage]);
 
   const fetchRooms = async (page) => {
@@ -98,6 +117,15 @@ export default function RoomsCard({
     }
   };
 
+  const handleResetClick = () => {
+    setIsSearchMode(false); // Exit search mode
+    if (onResetSearch) {
+      onResetSearch();
+    }
+    setCurrentPage(1);
+    fetchRooms(1); // Fetch all rooms again
+  };
+
   const getPageNumbers = () => {
     if (!pagination) return [];
 
@@ -160,16 +188,24 @@ export default function RoomsCard({
       },
     },
   };
+
   if (loading) {
-    return <LoadingSpinner message="Loading Featured rooms..." />;
+    return <LoadingSpinner message="Loading rooms..." />;
   }
+
   if (error) {
     return (
       <div className="pb-32 flex items-center justify-center min-h-96">
         <div className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
           <button
-            onClick={() => fetchRooms(currentPage)}
+            onClick={() => {
+              if (isSearchMode) {
+                handleResetClick();
+              } else {
+                fetchRooms(currentPage);
+              }
+            }}
             className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
           >
             Try Again
@@ -183,16 +219,26 @@ export default function RoomsCard({
     return (
       <div className="pb-32 flex items-center justify-center min-h-96">
         <div className="text-center">
-          <p className="text-gray-600 text-lg">
-            No rooms available at the moment.
+          <p className="text-gray-600 text-lg mb-4">
+            {isSearchMode
+              ? "No rooms found matching your search criteria."
+              : "No rooms available at the moment."}
           </p>
+          {isSearchMode && onResetSearch && (
+            <button
+              onClick={handleResetClick}
+              className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+            >
+              Clear Filters
+            </button>
+          )}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="pb-32">
+    <div className="pb-32 max-w-7xl mx-auto">
       <motion.div
         key={currentPage}
         variants={containerVariants}

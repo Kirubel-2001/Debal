@@ -66,7 +66,7 @@ export default function Navbar() {
                   onClick={() => navigate(currentUser ? "/post" : "/signup")}
                   className="px-4 py-2 bg-linear-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition"
                 >
-                  Post a Room
+                  Post Your Room
                 </motion.button>
 
                 {currentUser ? (

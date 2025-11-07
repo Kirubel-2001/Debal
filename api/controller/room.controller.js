@@ -14,16 +14,18 @@ export const createRoom = async (req, res, next) => {
       gender,
       rent,
       phone,
-      owner
+      owner,
     } = req.body;
 
     // Upload images to Cloudinary
     let imageUrls = [];
     if (req.files && req.files.length > 0) {
       // Upload all images to Cloudinary
-      const uploadPromises = req.files.map(file => uploadToCloudinary(file.buffer));
+      const uploadPromises = req.files.map((file) =>
+        uploadToCloudinary(file.buffer)
+      );
       const uploadResults = await Promise.all(uploadPromises);
-      imageUrls = uploadResults.map(result => result.secure_url);
+      imageUrls = uploadResults.map((result) => result.secure_url);
     }
 
     const room = await Room.create({
@@ -36,7 +38,7 @@ export const createRoom = async (req, res, next) => {
       rent,
       phone,
       owner,
-      images: imageUrls
+      images: imageUrls,
     });
 
     res.status(201).json({
@@ -49,14 +51,16 @@ export const createRoom = async (req, res, next) => {
     if (req.files && req.files.length > 0) {
       try {
         const uploadResults = await Promise.all(
-          req.files.map(file => uploadToCloudinary(file.buffer))
+          req.files.map((file) => uploadToCloudinary(file.buffer))
         );
-        
+
         for (const result of uploadResults) {
-          await cloudinary.uploader.destroy(result.public_id).catch(err => console.error(err));
+          await cloudinary.uploader
+            .destroy(result.public_id)
+            .catch((err) => console.error(err));
         }
       } catch (cleanupError) {
-        console.error('Error cleaning up images:', cleanupError);
+        console.error("Error cleaning up images:", cleanupError);
       }
     }
     next(error);
@@ -68,44 +72,24 @@ export const getAllRooms = async (req, res, next) => {
   try {
     const {
       location,
-      accommodationType,
-      propertyType,
-      gender,
-      phone,
       minRent,
       maxRent,
       status,
       search,
-      sort = '-createdAt',
+      sort = "-createdAt",
       page = 1,
-      limit = 10
+      limit = 10,
     } = req.query;
 
     // Build filter object
     const filter = {};
 
     if (location) {
-      filter.location = { $regex: location, $options: 'i' };
-    }
-
-    if (accommodationType) {
-      filter.accommodationType = accommodationType;
-    }
-
-    if (propertyType) {
-      filter.propertyType = propertyType;
-    }
-
-    if (gender) {
-      filter.gender = gender;
+      filter.location = { $regex: location, $options: "i" };
     }
 
     if (status) {
       filter.status = status;
-    }
-
-    if (phone) {
-      filter.phone = phone;
     }
 
     // Rent range filter
@@ -115,13 +99,18 @@ export const getAllRooms = async (req, res, next) => {
       if (maxRent) filter.rent.$lte = Number(maxRent);
     }
 
-    // Search in title and description
+    // Search in title and location
     if (search) {
-      filter.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } }
-      ];
-    }
+  const words = search.split(" ").filter(Boolean); // split and remove empty strings
+
+  filter.$or = words.map(word => ({
+    $or: [
+      { title: { $regex: word, $options: "i" } },
+      { location: { $regex: word, $options: "i" } },
+    ],
+  }));
+}
+
 
     // Pagination
     const pageNum = parseInt(page, 10);
@@ -133,7 +122,7 @@ export const getAllRooms = async (req, res, next) => {
       .sort(sort)
       .skip(skip)
       .limit(limitNum)
-      .populate('owner', 'username email')
+      .populate("owner", "username email")
       .lean();
 
     // Get total count for pagination
@@ -149,8 +138,8 @@ export const getAllRooms = async (req, res, next) => {
         totalRooms,
         limit: limitNum,
         hasNextPage: pageNum < totalPages,
-        hasPrevPage: pageNum > 1
-      }
+        hasPrevPage: pageNum > 1,
+      },
     });
   } catch (error) {
     next(error);
@@ -160,7 +149,7 @@ export const getAllRooms = async (req, res, next) => {
 export const updateRoom = async (req, res, next) => {
   try {
     const room = await Room.findById(req.params.id);
-    
+
     if (!room) {
       return next(errorHandler(404, "Room not found"));
     }
@@ -179,7 +168,7 @@ export const updateRoom = async (req, res, next) => {
       gender,
       rent,
       phone,
-      status
+      status,
     } = req.body;
 
     let imageUrls = room.images; // Keep existing images by default
@@ -190,20 +179,24 @@ export const updateRoom = async (req, res, next) => {
       if (room.images && room.images.length > 0) {
         for (const imageUrl of room.images) {
           try {
-            const urlParts = imageUrl.split('/');
+            const urlParts = imageUrl.split("/");
             const publicIdWithExtension = urlParts[urlParts.length - 1];
-            const publicId = `room-listings/${publicIdWithExtension.split('.')[0]}`;
+            const publicId = `room-listings/${
+              publicIdWithExtension.split(".")[0]
+            }`;
             await cloudinary.uploader.destroy(publicId);
           } catch (err) {
-            console.error('Error deleting old image:', err);
+            console.error("Error deleting old image:", err);
           }
         }
       }
 
       // Upload new images
-      const uploadPromises = req.files.map(file => uploadToCloudinary(file.buffer));
+      const uploadPromises = req.files.map((file) =>
+        uploadToCloudinary(file.buffer)
+      );
       const uploadResults = await Promise.all(uploadPromises);
-      imageUrls = uploadResults.map(result => result.secure_url);
+      imageUrls = uploadResults.map((result) => result.secure_url);
     }
 
     const updatedRoom = await Room.findByIdAndUpdate(
@@ -218,15 +211,15 @@ export const updateRoom = async (req, res, next) => {
         rent,
         phone,
         status,
-        images: imageUrls
+        images: imageUrls,
       },
       { new: true, runValidators: true }
-    ).populate('owner', 'username email');
+    ).populate("owner", "username email");
 
     res.status(200).json({
       success: true,
       message: "Room updated successfully",
-      data: updatedRoom
+      data: updatedRoom,
     });
   } catch (error) {
     next(error);
@@ -237,7 +230,7 @@ export const updateRoom = async (req, res, next) => {
 export const deleteRoom = async (req, res, next) => {
   try {
     const room = await Room.findById(req.params.id);
-    
+
     if (!room) {
       return next(errorHandler(404, "Room not found"));
     }
@@ -251,12 +244,14 @@ export const deleteRoom = async (req, res, next) => {
     if (room.images && room.images.length > 0) {
       for (const imageUrl of room.images) {
         try {
-          const urlParts = imageUrl.split('/');
+          const urlParts = imageUrl.split("/");
           const publicIdWithExtension = urlParts[urlParts.length - 1];
-          const publicId = `room-listings/${publicIdWithExtension.split('.')[0]}`;
+          const publicId = `room-listings/${
+            publicIdWithExtension.split(".")[0]
+          }`;
           await cloudinary.uploader.destroy(publicId);
         } catch (err) {
-          console.error('Error deleting image:', err);
+          console.error("Error deleting image:", err);
         }
       }
     }
@@ -265,7 +260,7 @@ export const deleteRoom = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: "Room deleted successfully"
+      message: "Room deleted successfully",
     });
   } catch (error) {
     next(error);
@@ -274,14 +269,8 @@ export const deleteRoom = async (req, res, next) => {
 
 // Get rooms by owner (user's own rooms)
 export const getMyRooms = async (req, res, next) => {
-  
   try {
-    const {
-      status,
-      sort = '-createdAt',
-      page = 1,
-      limit = 10
-    } = req.query;
+    const { status, sort = "-createdAt", page = 1, limit = 10 } = req.query;
 
     const filter = { owner: req.user.id };
 
@@ -297,7 +286,7 @@ export const getMyRooms = async (req, res, next) => {
       .sort(sort)
       .skip(skip)
       .limit(limitNum)
-      .populate('owner', 'username email')
+      .populate("owner", "username email")
       .lean();
 
     const totalRooms = await Room.countDocuments(filter);
@@ -312,8 +301,8 @@ export const getMyRooms = async (req, res, next) => {
         totalRooms,
         limit: limitNum,
         hasNextPage: pageNum < totalPages,
-        hasPrevPage: pageNum > 1
-      }
+        hasPrevPage: pageNum > 1,
+      },
     });
   } catch (error) {
     next(error);

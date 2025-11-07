@@ -94,7 +94,7 @@ const BurgerMenu = () => {
                 }
                 className="block w-full text-left px-4 py-2 hover:bg-indigo-50 rounded"
               >
-                Post a Room
+                Post Your Room
               </button>
             </li>
 
