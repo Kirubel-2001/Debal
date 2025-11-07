@@ -28,7 +28,7 @@ export default function StatsSection() {
   return (
     <div>
       {/* Stats Section */}
-      <section className="py-12 bg-linear-to-r from-indigo-600 to-purple-600">
+      <section className="py-7 bg-linear-to-r from-indigo-600 to-purple-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             variants={containerVariants}

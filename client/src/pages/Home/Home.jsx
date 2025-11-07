@@ -15,11 +15,16 @@ import LoadingSpinner from "../../components/LoadingSpinner.jsx";
 
 function Home() {
   const [searchResults, setSearchResults] = useState(null);
+  const [searchParams, setSearchParams] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState(null);
 
   const handleSearchResults = (results) => {
     setSearchResults(results);
+  };
+
+  const handleSearchParams = (params) => {
+    setSearchParams(params);
   };
 
   const handleLoading = (loading) => {
@@ -33,32 +38,28 @@ function Home() {
 
   const handleReset = () => {
     setSearchResults(null);
+    setSearchParams(null);
     setSearchError(null);
     setIsSearching(false);
   };
 
   return (
     <div className="min-h-screen bg-linear-to-br from-indigo-50 via-white to-purple-50">
-      {/* Navigation */}
       <Navbar />
-
-      {/* Hero Section */}
       <HeroSection />
-
-      {/* Search and Filter */}
+      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <SearchAndFilter
           onSearchResults={handleSearchResults}
+          onSearchParams={handleSearchParams}
           onLoading={handleLoading}
           onError={handleError}
           onReset={handleReset}
         />
       </div>
 
-      {/* Featured Listings */}
       <FeaturedListings />
 
-      {/* Rooms Card - Now connected to search */}
       <div
         id="listings"
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"
@@ -73,24 +74,16 @@ function Home() {
         ) : (
           <RoomsCard
             searchResults={searchResults}
+            searchParams={searchParams}
             onResetSearch={handleReset}
           />
         )}
       </div>
 
-      {/* Stats Section */}
       <StatsSection />
-
-      {/* Features Section */}
       <FeaturedSection />
-
-      {/* How It Works */}
       <HowItWorks />
-
-      {/* CTA Section */}
       <CTASection />
-
-      {/* Footer */}
       <Footer />
     </div>
   );

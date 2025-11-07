@@ -8,11 +8,11 @@ export default function SearchAndFilter({
   onSearchResults,
   onLoading,
   onError,
+  onSearchParams, // NEW: Add this prop
 }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [priceRange, setPriceRange] = useState("");
   const [location, setLocation] = useState("");
-
   const [isSearching, setIsSearching] = useState(false);
 
   const handleSearch = async (e) => {
@@ -25,7 +25,6 @@ export default function SearchAndFilter({
       if (onLoading) onLoading(true);
       if (onError) onError(null);
 
-      // Build query parameters
       const params = {
         status: "available",
         page: 1,
@@ -33,29 +32,26 @@ export default function SearchAndFilter({
         sort: "-createdAt",
       };
 
-      // Add search query
       if (searchQuery.trim()) {
         params.search = searchQuery.trim();
       }
 
-      // Add location filter
       if (location) {
         params.location = location;
       }
 
-      // Add price range filter
       if (priceRange) {
         const [min, max] = priceRange.split("-");
         if (min) params.minRent = min;
         if (max && max !== "+") params.maxRent = max;
       }
 
-      // Debug log
+      // Send search params to parent
+      if (onSearchParams) {
+        onSearchParams(params);
+      }
 
-      // Fetch rooms with filters
       const response = await axiosInstance.get("/room/rooms", { params });
-
-      console.log("Search response:", response.data); // Debug log
 
       if (response.data.success) {
         if (onSearchResults) {
@@ -88,10 +84,9 @@ export default function SearchAndFilter({
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.8 }}
-        className="bg-white rounded-2xl shadow-2xl p-6 md:p-8 max-w-6xl mx-auto"
+        className="bg-white rounded-2xl shadow-2xl p-2 max-w-6xl mx-auto"
       >
-        {/* Main Search Row */}
-        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
           <div className="md:col-span-3 relative">
             <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
             <input

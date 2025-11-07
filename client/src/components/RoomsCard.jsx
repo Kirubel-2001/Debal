@@ -23,6 +23,7 @@ export default function RoomsCard({
   searchResults = null,
   onResetSearch = null,
   showStatus = false,
+  searchParams = null, // NEW: Add this prop to receive search parameters
 }) {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -32,22 +33,34 @@ export default function RoomsCard({
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isSearchMode, setIsSearchMode] = useState(false);
+  const [activeSearchParams, setActiveSearchParams] = useState(null);
 
   useEffect(() => {
     if (searchResults) {
       setIsSearchMode(true);
+      setActiveSearchParams(searchParams);
       setListings(searchResults.rooms);
       setPagination(searchResults.pagination);
       setCurrentPage(searchResults.pagination.currentPage);
       setLoading(false);
-    } else if (searchResults === null && !isSearchMode) {
-      fetchRooms(currentPage);
+    } else if (searchResults === null && isSearchMode) {
+      // Reset to normal mode
+      setIsSearchMode(false);
+      setActiveSearchParams(null);
+      setCurrentPage(1);
+      fetchRooms(1);
     }
-  }, [searchResults]);
+  }, [searchResults, searchParams]);
 
   useEffect(() => {
-    if (!isSearchMode) {
-      fetchRooms(currentPage);
+    if (!searchResults) {
+      if (isSearchMode && activeSearchParams) {
+        // Fetch with search parameters
+        fetchRoomsWithSearch(currentPage, activeSearchParams);
+      } else {
+        // Fetch normally
+        fetchRooms(currentPage);
+      }
     }
   }, [currentPage]);
 
@@ -71,6 +84,31 @@ export default function RoomsCard({
       }
     } catch (err) {
       console.error("Error fetching rooms:", err);
+      setError(err.response?.data?.message || "Failed to fetch rooms");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchRoomsWithSearch = async (page, searchParameters) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const params = {
+        ...searchParameters,
+        page: page,
+        limit: 6,
+      };
+
+      const response = await axiosInstance.get("/room/rooms", { params });
+
+      if (response.data.success) {
+        setListings(response.data.data);
+        setPagination(response.data.pagination);
+      }
+    } catch (err) {
+      console.error("Error fetching rooms with search:", err);
       setError(err.response?.data?.message || "Failed to fetch rooms");
     } finally {
       setLoading(false);
@@ -118,6 +156,7 @@ export default function RoomsCard({
 
   const handleResetClick = () => {
     setIsSearchMode(false);
+    setActiveSearchParams(null);
     if (onResetSearch) {
       onResetSearch();
     }
@@ -245,7 +284,7 @@ export default function RoomsCard({
   }
 
   return (
-    <div className="pb-32 max-w-7xl mx-auto">
+    <div className="pb-15 max-w-7xl mx-auto">
       <motion.div
         key={currentPage}
         variants={containerVariants}
@@ -275,7 +314,6 @@ export default function RoomsCard({
               <div className="absolute top-3 right-3">
                 {showStatus ? (
                   <div className="flex items-center space-x-2">
-                    {/* Status Badge */}
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-semibold capitalize ${
                         listing.status === "available"
@@ -287,8 +325,6 @@ export default function RoomsCard({
                     >
                       {listing.status}
                     </span>
-
-                    {/* Created At (Time Ago) Badge */}
                     {listing.createdAt && (
                       <span className="px-3 py-1 rounded-full text-xs font-semibold bg-white bg-opacity-90 text-gray-700 flex items-center space-x-1">
                         <Clock className="w-3 h-3" />
