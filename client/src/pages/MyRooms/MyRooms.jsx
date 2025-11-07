@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Pencil, Trash2, X, MapPin, Eye } from "lucide-react";
+import { Trash2 } from "lucide-react";
 // eslint-disable-next-line no-unused-vars
 import { AnimatePresence, motion } from "framer-motion";
 import axiosInstance from "../../utils/axiosInstance";
-import RoomsDetailsCard from "../../components/RoomsDetailsCard";
+import RoomsCard from "../../components/RoomsCard";
 import EditRoom from "./EditRoom";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer";
-import LoadingSpinner from "../../components/LoadingSpinner";
 
 function MyRooms() {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [filterStatus, setFilterStatus] = useState("all");
   const [submitting, setSubmitting] = useState(false);
@@ -41,11 +39,6 @@ function MyRooms() {
     };
     fetchMyRooms();
   }, [filterStatus]);
-
-  const handleViewDetails = (room) => {
-    setSelectedRoom(room);
-    setShowDetailsModal(true);
-  };
 
   const handleEdit = (room) => {
     setSelectedRoom(room);
@@ -100,10 +93,6 @@ function MyRooms() {
     }
   };
 
-  if (loading) {
-    return <LoadingSpinner message="Loading your rooms..." />;
-  }
-
   return (
     <div className="min-h-screen bg-linear-to-br from-indigo-50 via-white to-purple-50">
       <Navbar />
@@ -132,113 +121,27 @@ function MyRooms() {
           </div>
         </div>
 
-        {rooms.length === 0 ? (
+        {!loading && rooms.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-600 text-lg">
               No rooms found. Start by creating your first room!
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-32">
-            {rooms.map((room) => (
-              <motion.div
-                key={room._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                whileHover={{ y: -10 }}
-                className="bg-white rounded-xl shadow-lg overflow-hidden"
-              >
-                <div className="relative h-48 bg-linear-to-br from-indigo-400 to-purple-400">
-                  {room.images && room.images.length > 0 ? (
-                    <img
-                      src={room.images[0]}
-                      alt={room.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-white text-lg font-semibold">
-                      {room.title}
-                    </div>
-                  )}
-                  <div className="absolute top-3 right-3">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold capitalize ${
-                        room.status === "available"
-                          ? "bg-green-100 text-green-700"
-                          : room.status === "rented"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}
-                    >
-                      {room.status}
-                    </span>
-                  </div>
-                  <div className="absolute top-3 left-3 flex space-x-2">
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => handleEdit(room)}
-                      className="p-2 bg-white rounded-full shadow-lg hover:bg-indigo-50 transition"
-                      title="Edit"
-                    >
-                      <Pencil className="w-4 h-4 text-indigo-600" />
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => handleDeleteClick(room)}
-                      className="p-2 bg-white rounded-full shadow-lg hover:bg-red-50 transition"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-4 h-4 text-red-600" />
-                    </motion.button>
-                  </div>
-                </div>
-                <div className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                    {room.title}
-                  </h3>
-                  <div className="flex items-center text-gray-600 mb-2 capitalize">
-                    <MapPin className="w-4 h-4 mr-2 shrink-0" />
-                    <span className="text-sm">{room.location}</span>
-                  </div>
-                  <div className="text-2xl font-bold text-indigo-600 mb-4">
-                    {room.rent?.toLocaleString()} ETB
-                    <span className="text-sm text-gray-500">/month</span>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {room.accommodationType && (
-                      <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs capitalize">
-                        {room.accommodationType}
-                      </span>
-                    )}
-                    {room.gender && (
-                      <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs capitalize">
-                        {room.gender}
-                      </span>
-                    )}
-                    {room.propertyType && (
-                      <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs capitalize">
-                        {room.propertyType}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                    {room.description || "No description available"}
-                  </p>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => handleViewDetails(room)}
-                    className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition flex items-center justify-center space-x-2"
-                  >
-                    <Eye className="w-4 h-4" />
-                    <span>View Details</span>
-                  </motion.button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+          <RoomsCard
+            onEdit={handleEdit}
+            onDelete={handleDeleteClick}
+            showActions={true}
+            searchResults={{
+              rooms: rooms,
+              pagination: {
+                currentPage: 1,
+                totalPages: 1,
+                totalRooms: rooms.length,
+              },
+            }}
+            showStatus={true}
+          />
         )}
       </div>
 
@@ -296,15 +199,6 @@ function MyRooms() {
               </div>
             </motion.div>
           </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {showDetailsModal && selectedRoom && (
-          <RoomsDetailsCard
-            room={selectedRoom}
-            onClose={() => setShowDetailsModal(false)}
-          />
         )}
       </AnimatePresence>
     </div>

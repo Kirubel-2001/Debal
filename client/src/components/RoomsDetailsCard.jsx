@@ -11,10 +11,10 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-export default function RoomsDetailsCard({ room, onClose }) {
+export default function RoomsDetailsCard({ room, onClose, showStatus = false }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
- useEffect(() => {
+  useEffect(() => {
     document.body.style.overflow = "hidden"; // stop background scroll
     return () => {
       document.body.style.overflow = "auto"; // restore on close
@@ -32,6 +32,33 @@ export default function RoomsDetailsCard({ room, onClose }) {
       default:
         return "bg-gray-100 text-gray-700";
     }
+  };
+
+  const getTimeAgo = (dateString) => {
+    const now = new Date();
+    const createdDate = new Date(dateString);
+    const diffInMs = now - createdDate;
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+
+    if (diffInHours < 24) {
+      if (diffInHours < 1) {
+        return `${diffInMinutes} min${diffInMinutes !== 1 ? 's' : ''} ago`;
+      }
+      return `${diffInHours} hour${diffInHours !== 1 ? 's' : ''} ago`;
+    }
+
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) {
+      return `${diffInDays} day${diffInDays !== 1 ? 's' : ''} ago`;
+    }
+
+    const diffInWeeks = Math.floor(diffInDays / 7);
+    if (diffInWeeks < 4) {
+      return `${diffInWeeks} week${diffInWeeks !== 1 ? 's' : ''} ago`;
+    }
+
+    return createdDate.toLocaleDateString();
   };
 
   const handlePrevImage = () => {
@@ -122,8 +149,8 @@ export default function RoomsDetailsCard({ room, onClose }) {
                 </>
               )}
 
-              {room.status && (
-                <div className="absolute top-2 left-2">
+              <div className="absolute top-2 left-2 flex gap-2">
+                {showStatus && room.status && (
                   <span
                     className={`px-2.5 py-1 rounded-full text-xs font-semibold capitalize ${getStatusColor(
                       room.status
@@ -131,8 +158,13 @@ export default function RoomsDetailsCard({ room, onClose }) {
                   >
                     {room.status}
                   </span>
-                </div>
-              )}
+                )}
+                {room.createdAt && (
+                  <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                    {getTimeAgo(room.createdAt)}
+                  </span>
+                )}
+              </div>
             </div>
           ) : (
             <div className="h-56 bg-linear-to-br from-indigo-400 to-purple-400 flex items-center justify-center">

@@ -9,6 +9,7 @@ import {
   Pencil,
   Trash2,
   Eye,
+  Clock,
 } from "lucide-react";
 import axiosInstance from "../utils/axiosInstance";
 import RoomsDetailsCard from "./RoomsDetailsCard";
@@ -21,6 +22,7 @@ export default function RoomsCard({
   showActions = false,
   searchResults = null,
   onResetSearch = null,
+  showStatus = false,
 }) {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,9 +31,8 @@ export default function RoomsCard({
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const [isSearchMode, setIsSearchMode] = useState(false); // Track if we're in search mode
+  const [isSearchMode, setIsSearchMode] = useState(false);
 
-  // Update listings when search results change
   useEffect(() => {
     if (searchResults) {
       setIsSearchMode(true);
@@ -40,13 +41,11 @@ export default function RoomsCard({
       setCurrentPage(searchResults.pagination.currentPage);
       setLoading(false);
     } else if (searchResults === null && !isSearchMode) {
-      // Only fetch all rooms on initial load, not when search returns no results
       fetchRooms(currentPage);
     }
   }, [searchResults]);
 
   useEffect(() => {
-    // Only fetch when not in search mode
     if (!isSearchMode) {
       fetchRooms(currentPage);
     }
@@ -118,12 +117,12 @@ export default function RoomsCard({
   };
 
   const handleResetClick = () => {
-    setIsSearchMode(false); // Exit search mode
+    setIsSearchMode(false);
     if (onResetSearch) {
       onResetSearch();
     }
     setCurrentPage(1);
-    fetchRooms(1); // Fetch all rooms again
+    fetchRooms(1);
   };
 
   const getPageNumbers = () => {
@@ -158,16 +157,24 @@ export default function RoomsCard({
     return pages;
   };
 
-  const getStatusColor = (status) => {
-    switch (status?.toLowerCase()) {
-      case "available":
-        return "bg-green-100 text-green-700";
-      case "rented":
-        return "bg-red-100 text-red-700";
-      case "pending":
-        return "bg-yellow-100 text-yellow-700";
-      default:
-        return "bg-gray-100 text-gray-700";
+  const getTimeAgo = (createdAt) => {
+    const now = new Date();
+    const created = new Date(createdAt);
+    const diffInMs = now - created;
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+
+    if (diffInHours < 24) {
+      if (diffInHours === 0) {
+        if (diffInMinutes === 0) {
+          return "Just now";
+        }
+        return `${diffInMinutes} min${diffInMinutes !== 1 ? "s" : ""} ago`;
+      }
+      return `${diffInHours} hour${diffInHours !== 1 ? "s" : ""} ago`;
+    } else {
+      const options = { month: "short", day: "numeric", year: "numeric" };
+      return created.toLocaleDateString("en-US", options);
     }
   };
 
@@ -265,17 +272,39 @@ export default function RoomsCard({
                   {listing.title}
                 </div>
               )}
-              {listing.status && (
-                <div className="absolute top-3 right-3">
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-semibold capitalize ${getStatusColor(
-                      listing.status
-                    )}`}
-                  >
-                    {listing.status}
-                  </span>
-                </div>
-              )}
+              <div className="absolute top-3 right-3">
+                {showStatus ? (
+                  <div className="flex items-center space-x-2">
+                    {/* Status Badge */}
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-semibold capitalize ${
+                        listing.status === "available"
+                          ? "bg-green-100 text-green-700"
+                          : listing.status === "rented"
+                          ? "bg-red-100 text-red-700"
+                          : "bg-yellow-100 text-yellow-700"
+                      }`}
+                    >
+                      {listing.status}
+                    </span>
+
+                    {/* Created At (Time Ago) Badge */}
+                    {listing.createdAt && (
+                      <span className="px-3 py-1 rounded-full text-xs font-semibold bg-white bg-opacity-90 text-gray-700 flex items-center space-x-1">
+                        <Clock className="w-3 h-3" />
+                        <span>{getTimeAgo(listing.createdAt)}</span>
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  listing.createdAt && (
+                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-white bg-opacity-90 text-gray-700 flex items-center space-x-1">
+                      <Clock className="w-3 h-3" />
+                      <span>{getTimeAgo(listing.createdAt)}</span>
+                    </span>
+                  )
+                )}
+              </div>
               {showActions && (
                 <div className="absolute top-3 left-3 flex space-x-2">
                   <motion.button
@@ -401,7 +430,11 @@ export default function RoomsCard({
 
       <AnimatePresence>
         {isDetailsOpen && selectedRoom && (
-          <RoomsDetailsCard room={selectedRoom} onClose={handleCloseDetails} />
+          <RoomsDetailsCard
+            room={selectedRoom}
+            onClose={handleCloseDetails}
+            showStatus={showStatus}
+          />
         )}
       </AnimatePresence>
     </div>
